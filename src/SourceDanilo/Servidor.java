@@ -22,7 +22,8 @@ public class Servidor {
 		PrintWriter pW = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
 		String msgReceived;
 		File file;
-		BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
+		BufferedInputStream bisApp = new BufferedInputStream(socket.getInputStream());
+		BufferedInputStream bisFile;
 
 		System.out.println("Usuario conectado.");
 		while (socket.isConnected()) {
@@ -49,7 +50,7 @@ public class Servidor {
 				BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("Arquivos Servidor/" + msgReceived));
 
 				do {
-					bytesRead = bis.read(mybytearray, current, (mybytearray.length - current));
+					bytesRead = bisApp.read(mybytearray, current, (mybytearray.length - current));
 					if (bytesRead >= 0)
 						current += bytesRead;
 				} while (bytesRead > -1);
@@ -71,14 +72,14 @@ public class Servidor {
 				// envia o arquivo
 				file = new File("Arquivos Servidor/" + msgReceived);
 				mybytearray = new byte[(int) file.length()];
-				bis = new BufferedInputStream(new FileInputStream(file));
-				bis.read(mybytearray, 0, mybytearray.length);
+				bisFile = new BufferedInputStream(new FileInputStream(file));
+				bisFile.read(mybytearray, 0, mybytearray.length);
 				bos = new BufferedOutputStream(socket.getOutputStream());
 				System.out.println("Enviando...");
 				bos.write(mybytearray, 0, mybytearray.length);
 				bos.flush();
 				bos.close();
-				bis.close();
+				bisFile.close();
 				System.out.println("Recebimento concluido.");				
 				socket = sSocket.accept();
 				break;
