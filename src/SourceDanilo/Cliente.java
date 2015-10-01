@@ -1,8 +1,9 @@
-package br.ufrn.imd.psi;
+package SourceDanilo;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -16,26 +17,37 @@ public class Cliente {
 	public static void main(String[] args) throws Exception {
 
 		Socket socket = new Socket("localhost", 1818);
-		BufferedReader bRKboard = new BufferedReader(new InputStreamReader(System.in));
-		BufferedReader bRApp = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		BufferedReader brKboard = new BufferedReader(new InputStreamReader(System.in));
+		BufferedReader brApp = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		PrintWriter pW = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
 		String msgReceived, msgString;
+		FileOutputStream fos;
 		File file;
-		BufferedOutputStream bosFile;
 		BufferedOutputStream bosApp = new BufferedOutputStream(socket.getOutputStream());
+		BufferedOutputStream bosFile;
 		BufferedInputStream bis;
-		InputStream is = socket.getInputStream();
 
 		while (true) {
 			imprimeMenu();
-			switch (bRKboard.readLine()) {
+			
+			switch (brKboard.readLine()) {
 			case "1":
-				// Envia a opcao escolhida
+				// Conectar
 				pW.println("1");
 				pW.flush();
-				// Conectar
-				System.out.println("Bem vindo");
+				if(socket.isConnected()){
+					System.out.println("Voce ja esta conectado.");
+					break;
+				}
+				
+				socket = new Socket("localhost", 1818);
+
+				pW.println("1");
+				pW.flush();
+				msgReceived = brApp.readLine();
+				System.out.println(msgReceived);
 				break;
+
 			case "2": // Enviar arquivo
 				// Envia a opcao escolhida
 				pW.println("2");
@@ -43,11 +55,11 @@ public class Cliente {
 
 				// Envia o caminho do arquivo
 				System.out.println("Digite o caminho do arquivo que sera enviado: ");
-				msgReceived = bRKboard.readLine();
+				msgReceived = brKboard.readLine();
 				pW.println(msgReceived);
 				pW.flush();
 
-				// Envia o arquivo
+				// envia o arquivo
 				file = new File(msgReceived);
 				byte[] mybytearray = new byte[(int) file.length()];
 				bis = new BufferedInputStream(new FileInputStream(file));
@@ -55,8 +67,9 @@ public class Cliente {
 				System.out.println("Enviando...");
 				bosApp.write(mybytearray, 0, mybytearray.length);
 				bosApp.flush();
-				//bosApp.close();
-				// socket = new Socket("localhost", 1818);
+				bosApp.close();
+				System.out.println("Envio concluido.");
+				socket = new Socket("localhost", 1818);
 				break;
 			case "3":
 				// Receber arquivo
@@ -66,14 +79,17 @@ public class Cliente {
 
 				// Envia o caminho do arquivo
 				System.out.println("Digite o nome do arquivo que sera recebido: ");
-				msgReceived = bRKboard.readLine();
+				msgReceived = brKboard.readLine();
 				pW.println(msgReceived);
+				pW.flush();
 
 				int filesize = 6022386;
 				int bytesRead;
 				int current = 0;
 				mybytearray = new byte[filesize];
-				bosFile = new BufferedOutputStream(new FileOutputStream("Arquivos Cliente/" + msgReceived));
+				InputStream is = socket.getInputStream();
+				fos = new FileOutputStream("Arquivos Cliente/" + msgReceived);
+				bosFile = new BufferedOutputStream(fos);
 				bytesRead = is.read(mybytearray, 0, mybytearray.length);
 				current = bytesRead;
 
@@ -84,8 +100,10 @@ public class Cliente {
 				} while (bytesRead > -1);
 
 				bosFile.write(mybytearray, 0, current);
-				//bosFile.flush();
-				// socket = new Socket("localhost", 1818);
+				bosFile.flush();
+				bosFile.close();
+				System.out.println("Recebimento concluido.");				
+				socket = new Socket("localhost", 1818);
 				break;
 			case "4":
 				// Listar arquivos
@@ -94,15 +112,17 @@ public class Cliente {
 				pW.flush();
 
 				// Recebe numero de arquivos
-				msgReceived = bRApp.readLine();
+				msgReceived = brApp.readLine();
 
 				for (int i = 0; i < Integer.parseInt(msgReceived); i++) {
-					msgString = bRApp.readLine();
+					msgString = brApp.readLine();
 					System.out.println(msgString);
 				}
 				break;
 			case "5":
 				pW.println("5");
+				pW.flush();
+
 				socket.close();
 				break;
 			}
@@ -114,10 +134,3 @@ public class Cliente {
 				+ "3 - Receber arquivo.\n" + "4 - Listar arquivos.\n" + "5 - Desconectar.\n" + "Opcao: ");
 	}
 }
-/*
- * As funções do cliente são: • Se conectar a um servidor lightFTP no host e
- * porta especificados; • Requisitar e receber lista de arquivos disponíveis no
- * servidor; • Receber arquivos enviados pelo servidor e armazena-los em disco;
- * • Fazer o upload de arquivos locais para o servidor remoto; • Se desconectar
- * do servidor.
- */

@@ -1,4 +1,4 @@
-package br.ufrn.imd.psi;
+package SourceDanilo;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -19,56 +19,53 @@ public class Servidor {
 		System.out.println("Aguardando entrada do usuario.");
 		ServerSocket sSocket = new ServerSocket(1818);
 		Socket socket = sSocket.accept();
-		System.out.println("Usuario conectado.");
-		BufferedReader bRApp = new BufferedReader(new InputStreamReader(socket.getInputStream()));;
 		PrintWriter pW = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
 		String msgReceived;
-		BufferedReader bRAppInside = new BufferedReader(new InputStreamReader(socket.getInputStream()));;
-
 		File file;
-		BufferedInputStream bis;
-		BufferedOutputStream bosApp = new BufferedOutputStream(socket.getOutputStream()); 
-		BufferedOutputStream bosFile;
-		InputStream is = socket.getInputStream();
+		BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
 
-	
-		while (true) {
-			switch (bRApp.readLine()) {
+		System.out.println("Usuario conectado.");
+		while (socket.isConnected()) {
+			BufferedReader brApp = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			switch (brApp.readLine()) {
 			case "1":
-				System.out.println("Usuario esta carente.");
+				System.out.println("Usuario conectado.");
+				// Conectar
+				pW.println("Voce esta conectado.");
+				pW.flush();
 				break;
 
 			case "2":
 				System.out.println("Usuario deseja enviar um arquivo.");
 				// Receber arquivo
 				// Recebe caminho do arquivo
-				msgReceived = bRApp.readLine();
+				msgReceived = brApp.readLine();
+				System.out.println(msgReceived);
 
 				int filesize = 6022386;
 				int bytesRead;
 				int current = 0;
 				byte[] mybytearray = new byte[filesize];
-				bosFile = new BufferedOutputStream(new FileOutputStream("Arquivos Servidor/" + msgReceived));
-				bytesRead = is.read(mybytearray, 0, mybytearray.length);
-				current = bytesRead;
+				BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("Arquivos Servidor/" + msgReceived));
 
 				do {
-					bytesRead = is.read(mybytearray, current, (mybytearray.length - current));
+					bytesRead = bis.read(mybytearray, current, (mybytearray.length - current));
 					if (bytesRead >= 0)
 						current += bytesRead;
 				} while (bytesRead > -1);
 
-				bosFile.write(mybytearray, 0, current);
-				bosFile.flush();
-				//socket = sSocket.accept();
-				System.out.println("Recebimento de arquivo concluido.");
+				bos.write(mybytearray, 0, current);
+				bos.flush();
+				bos.close();
+				System.out.println("Envio concluido.");
+				socket = sSocket.accept();
 				break;
 			case "3":
 				// Enviar arquivo
 				System.out.println("Usuario deseja receber um arquivo.");
 				// Receber arquivo
 				// Recebe caminho do arquivo
-				msgReceived = bRApp.readLine();
+				msgReceived = brApp.readLine();
 				System.out.println(msgReceived);
 
 				// envia o arquivo
@@ -76,13 +73,14 @@ public class Servidor {
 				mybytearray = new byte[(int) file.length()];
 				bis = new BufferedInputStream(new FileInputStream(file));
 				bis.read(mybytearray, 0, mybytearray.length);
+				bos = new BufferedOutputStream(socket.getOutputStream());
 				System.out.println("Enviando...");
-				bosApp.write(mybytearray, 0, mybytearray.length);
-				bosApp.flush();
-				//bosApp.close();
-				//bis.close();
-				
-				//socket = sSocket.accept();
+				bos.write(mybytearray, 0, mybytearray.length);
+				bos.flush();
+				bos.close();
+				bis.close();
+				System.out.println("Recebimento concluido.");				
+				socket = sSocket.accept();
 				break;
 			case "4":
 				// Listar arquivos
@@ -97,15 +95,16 @@ public class Servidor {
 				File[] listOfFiles = file.listFiles();
 
 				for (int i = 0; i < quantity; i++) {
+					// pW = new PrintWriter(new
+					// OutputStreamWriter(socket.getOutputStream()));
 					pW.println(listOfFiles[i].getName());
 					pW.flush();
 				}
 				break;
 			case "5":
 				// Sair
-				Thread.sleep(1000);
-				socket.close();
-				sSocket.close();
+				System.out.println("Usuario desconectado.");
+				socket = sSocket.accept();
 				break;
 			}
 		}
