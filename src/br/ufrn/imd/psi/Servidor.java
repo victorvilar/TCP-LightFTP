@@ -21,7 +21,7 @@ public class Servidor {
 		Socket socket = sSocket.accept();
 		System.out.println("Usuario conectado.");
 		BufferedReader bRApp = new BufferedReader(new InputStreamReader(socket.getInputStream()));;
-		PrintWriter pW = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+		PrintWriter pW = new PrintWriter(socket.getOutputStream(),true);
 		String msgReceived;
 		BufferedReader bRAppInside = new BufferedReader(new InputStreamReader(socket.getInputStream()));;
 
@@ -60,7 +60,9 @@ public class Servidor {
 
 				bosFile.write(mybytearray, 0, current);
 				bosFile.flush();
-				//socket = sSocket.accept();
+				bosFile.close();
+				
+				socket = sSocket.accept();
 				System.out.println("Recebimento de arquivo concluido.");
 				break;
 			case "3":
@@ -79,7 +81,7 @@ public class Servidor {
 				System.out.println("Enviando...");
 				bosApp.write(mybytearray, 0, mybytearray.length);
 				bosApp.flush();
-				//bosApp.close();
+				bosApp.close();
 				//bis.close();
 				
 				//socket = sSocket.accept();
@@ -91,14 +93,12 @@ public class Servidor {
 				int quantity = new File("Arquivos Servidor/").listFiles().length;
 
 				pW.println(quantity);
-				pW.flush();
 
 				file = new File("Arquivos Servidor/");
 				File[] listOfFiles = file.listFiles();
 
 				for (int i = 0; i < quantity; i++) {
 					pW.println(listOfFiles[i].getName());
-					pW.flush();
 				}
 				break;
 			case "5":

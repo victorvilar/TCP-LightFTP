@@ -19,7 +19,7 @@ public class Servidor {
 		System.out.println("Aguardando entrada do usuario.");
 		ServerSocket sSocket = new ServerSocket(1818);
 		Socket socket = sSocket.accept();
-		PrintWriter pW = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+		PrintWriter pW = new PrintWriter(socket.getOutputStream(),true);
 		String msgReceived;
 		File file;
 		BufferedInputStream bisApp = new BufferedInputStream(socket.getInputStream());
@@ -33,15 +33,13 @@ public class Servidor {
 				System.out.println("Usuario conectado.");
 				// Conectar
 				pW.println("Voce esta conectado.");
-				pW.flush();
 				break;
-
 			case "2":
 				System.out.println("Usuario deseja enviar um arquivo.");
 				// Receber arquivo
 				// Recebe caminho do arquivo
 				msgReceived = brApp.readLine();
-				System.out.println(msgReceived);
+				System.out.println("Arquivo: " + msgReceived);
 
 				int filesize = 6022386;
 				int bytesRead;
@@ -60,6 +58,7 @@ public class Servidor {
 				bos.close();
 				System.out.println("Envio concluido.");
 				socket = sSocket.accept();
+				System.out.println("Chegou aqui");
 				break;
 			case "3":
 				// Enviar arquivo
@@ -67,7 +66,7 @@ public class Servidor {
 				// Receber arquivo
 				// Recebe caminho do arquivo
 				msgReceived = brApp.readLine();
-				System.out.println(msgReceived);
+				System.out.println("Arquivo: " + msgReceived);
 
 				// envia o arquivo
 				file = new File("Arquivos Servidor/" + msgReceived);
@@ -90,16 +89,12 @@ public class Servidor {
 				int quantity = new File("Arquivos Servidor/").listFiles().length;
 
 				pW.println(quantity);
-				pW.flush();
 
 				file = new File("Arquivos Servidor/");
 				File[] listOfFiles = file.listFiles();
 
 				for (int i = 0; i < quantity; i++) {
-					// pW = new PrintWriter(new
-					// OutputStreamWriter(socket.getOutputStream()));
 					pW.println(listOfFiles[i].getName());
-					pW.flush();
 				}
 				break;
 			case "5":

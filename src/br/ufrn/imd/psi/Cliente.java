@@ -18,7 +18,7 @@ public class Cliente {
 		Socket socket = new Socket("localhost", 1818);
 		BufferedReader bRKboard = new BufferedReader(new InputStreamReader(System.in));
 		BufferedReader bRApp = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		PrintWriter pW = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+		PrintWriter pW = new PrintWriter(socket.getOutputStream(),true);
 		String msgReceived, msgString;
 		File file;
 		BufferedOutputStream bosFile;
@@ -32,20 +32,17 @@ public class Cliente {
 			case "1":
 				// Envia a opcao escolhida
 				pW.println("1");
-				pW.flush();
 				// Conectar
 				System.out.println("Bem vindo");
 				break;
 			case "2": // Enviar arquivo
 				// Envia a opcao escolhida
 				pW.println("2");
-				pW.flush();
 
 				// Envia o caminho do arquivo
 				System.out.println("Digite o caminho do arquivo que sera enviado: ");
 				msgReceived = bRKboard.readLine();
 				pW.println(msgReceived);
-				pW.flush();
 
 				// Envia o arquivo
 				file = new File(msgReceived);
@@ -62,7 +59,6 @@ public class Cliente {
 				// Receber arquivo
 				// Envia a opcao escolhida
 				pW.println("3");
-				pW.flush();
 
 				// Envia o caminho do arquivo
 				System.out.println("Digite o nome do arquivo que sera recebido: ");
@@ -91,7 +87,6 @@ public class Cliente {
 				// Listar arquivos
 				// Envia a opcao escolhida
 				pW.println("4");
-				pW.flush();
 
 				// Recebe numero de arquivos
 				msgReceived = bRApp.readLine();

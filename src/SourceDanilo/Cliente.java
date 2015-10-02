@@ -19,13 +19,13 @@ public class Cliente {
 		Socket socket = new Socket("localhost", 1818);
 		BufferedReader brKboard = new BufferedReader(new InputStreamReader(System.in));
 		BufferedReader brApp = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		PrintWriter pW = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+		PrintWriter pW = new PrintWriter(socket.getOutputStream(),true);
 		String msgReceived, msgString;
 		FileOutputStream fos;
 		File file;
-		BufferedOutputStream bosApp = new BufferedOutputStream(socket.getOutputStream());
 		BufferedOutputStream bosFile;
-		BufferedInputStream bis;
+		BufferedInputStream bisApp = new BufferedInputStream(socket.getInputStream());
+		BufferedInputStream bisFile;
 
 		while (true) {
 			imprimeMenu();
@@ -34,7 +34,6 @@ public class Cliente {
 			case "1":
 				// Conectar
 				pW.println("1");
-				pW.flush();
 				if(socket.isConnected()){
 					System.out.println("Voce ja esta conectado.");
 					break;
@@ -42,29 +41,25 @@ public class Cliente {
 				
 				socket = new Socket("localhost", 1818);
 
-				pW.println("1");
-				pW.flush();
 				msgReceived = brApp.readLine();
 				System.out.println(msgReceived);
 				break;
-
 			case "2": // Enviar arquivo
 				// Envia a opcao escolhida
 				pW.println("2");
-				pW.flush();
 
 				// Envia o caminho do arquivo
 				System.out.println("Digite o caminho do arquivo que sera enviado: ");
 				msgReceived = brKboard.readLine();
 				pW.println(msgReceived);
-				pW.flush();
 
 				// envia o arquivo
 				file = new File(msgReceived);
 				byte[] mybytearray = new byte[(int) file.length()];
-				bis = new BufferedInputStream(new FileInputStream(file));
-				bis.read(mybytearray, 0, mybytearray.length);
+				bisFile = new BufferedInputStream(new FileInputStream(file));
+				bisFile.read(mybytearray, 0, mybytearray.length);
 				System.out.println("Enviando...");
+				BufferedOutputStream bosApp = new BufferedOutputStream(socket.getOutputStream());
 				bosApp.write(mybytearray, 0, mybytearray.length);
 				bosApp.flush();
 				bosApp.close();
@@ -75,26 +70,23 @@ public class Cliente {
 				// Receber arquivo
 				// Envia a opcao escolhida
 				pW.println("3");
-				pW.flush();
 
 				// Envia o caminho do arquivo
 				System.out.println("Digite o nome do arquivo que sera recebido: ");
 				msgReceived = brKboard.readLine();
 				pW.println(msgReceived);
-				pW.flush();
 
 				int filesize = 6022386;
 				int bytesRead;
 				int current = 0;
 				mybytearray = new byte[filesize];
-				InputStream is = socket.getInputStream();
 				fos = new FileOutputStream("Arquivos Cliente/" + msgReceived);
 				bosFile = new BufferedOutputStream(fos);
-				bytesRead = is.read(mybytearray, 0, mybytearray.length);
+				bytesRead = bisApp.read(mybytearray, 0, mybytearray.length);
 				current = bytesRead;
 
 				do {
-					bytesRead = is.read(mybytearray, current, (mybytearray.length - current));
+					bytesRead = bisApp.read(mybytearray, current, (mybytearray.length - current));
 					if (bytesRead >= 0)
 						current += bytesRead;
 				} while (bytesRead > -1);
@@ -109,7 +101,6 @@ public class Cliente {
 				// Listar arquivos
 				// Envia a opcao escolhida
 				pW.println("4");
-				pW.flush();
 
 				// Recebe numero de arquivos
 				msgReceived = brApp.readLine();
@@ -121,7 +112,6 @@ public class Cliente {
 				break;
 			case "5":
 				pW.println("5");
-				pW.flush();
 
 				socket.close();
 				break;
