@@ -17,19 +17,19 @@ public class Cliente {
 	public static void main(String[] args) throws Exception {
 
 		Socket socket = new Socket("localhost", 1818);
-		BufferedReader brKboard = new BufferedReader(new InputStreamReader(System.in));
-		BufferedReader brApp = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		PrintWriter pW = new PrintWriter(socket.getOutputStream(),true);
 		String msgReceived, msgString;
 		FileOutputStream fos;
 		File file;
 		BufferedOutputStream bosFile;
-		BufferedInputStream bisApp = new BufferedInputStream(socket.getInputStream());
 		BufferedInputStream bisFile;
 
 		while (true) {
 			imprimeMenu();
-			
+			BufferedReader brKboard = new BufferedReader(new InputStreamReader(System.in));
+			BufferedReader brApp = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			PrintWriter pW = new PrintWriter(socket.getOutputStream(),true);
+			BufferedInputStream bisApp = new BufferedInputStream(socket.getInputStream());
+
 			switch (brKboard.readLine()) {
 			case "1":
 				// Conectar

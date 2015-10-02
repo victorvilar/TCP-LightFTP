@@ -16,18 +16,19 @@ import java.net.Socket;
 public class Servidor {
 	public static void main(String[] args) throws Exception {
 
-		System.out.println("Aguardando entrada do usuario.");
 		ServerSocket sSocket = new ServerSocket(1818);
+		System.out.println("Aguardando entrada do usuario.");
 		Socket socket = sSocket.accept();
-		PrintWriter pW = new PrintWriter(socket.getOutputStream(),true);
 		String msgReceived;
 		File file;
-		BufferedInputStream bisApp = new BufferedInputStream(socket.getInputStream());
-		BufferedInputStream bisFile;
 
 		System.out.println("Usuario conectado.");
 		while (socket.isConnected()) {
 			BufferedReader brApp = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			PrintWriter pW = new PrintWriter(socket.getOutputStream(),true);
+			BufferedInputStream bisApp = new BufferedInputStream(socket.getInputStream());
+
+			System.out.println("Aguardando escolha do usuario.");
 			switch (brApp.readLine()) {
 			case "1":
 				System.out.println("Usuario conectado.");
@@ -58,7 +59,6 @@ public class Servidor {
 				bos.close();
 				System.out.println("Envio concluido.");
 				socket = sSocket.accept();
-				System.out.println("Chegou aqui");
 				break;
 			case "3":
 				// Enviar arquivo
@@ -71,7 +71,7 @@ public class Servidor {
 				// envia o arquivo
 				file = new File("Arquivos Servidor/" + msgReceived);
 				mybytearray = new byte[(int) file.length()];
-				bisFile = new BufferedInputStream(new FileInputStream(file));
+				BufferedInputStream bisFile = new BufferedInputStream(new FileInputStream(file));
 				bisFile.read(mybytearray, 0, mybytearray.length);
 				bos = new BufferedOutputStream(socket.getOutputStream());
 				System.out.println("Enviando...");
