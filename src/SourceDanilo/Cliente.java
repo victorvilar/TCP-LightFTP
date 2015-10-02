@@ -31,6 +31,7 @@ public class Cliente {
 			BufferedInputStream bisApp = new BufferedInputStream(socket.getInputStream());
 
 			switch (brKboard.readLine()) {
+			//Desnecessario agora o cliente ja inicia conectado
 			case "1":
 				// Conectar
 				pW.println("1");
@@ -44,6 +45,7 @@ public class Cliente {
 				msgReceived = brApp.readLine();
 				System.out.println(msgReceived);
 				break;
+				
 			case "2": // Enviar arquivo
 				// Envia a opcao escolhida
 				pW.println("2");
@@ -53,7 +55,7 @@ public class Cliente {
 				msgReceived = brKboard.readLine();
 				pW.println(msgReceived);
 
-				// envia o arquivo
+				// Envia o arquivo
 				file = new File(msgReceived);
 				byte[] mybytearray = new byte[(int) file.length()];
 				bisFile = new BufferedInputStream(new FileInputStream(file));
@@ -66,6 +68,7 @@ public class Cliente {
 				System.out.println("Envio concluido.");
 				socket = new Socket("localhost", 1818);
 				break;
+				
 			case "3":
 				// Receber arquivo
 				// Envia a opcao escolhida
@@ -97,6 +100,7 @@ public class Cliente {
 				System.out.println("Recebimento concluido.");				
 				socket = new Socket("localhost", 1818);
 				break;
+				
 			case "4":
 				// Listar arquivos
 				// Envia a opcao escolhida
@@ -110,6 +114,7 @@ public class Cliente {
 					System.out.println(msgString);
 				}
 				break;
+				
 			case "5":
 				pW.println("5");
 

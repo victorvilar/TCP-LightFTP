@@ -30,6 +30,7 @@ public class Servidor {
 
 			System.out.println("Aguardando escolha do usuario.");
 			switch (brApp.readLine()) {
+			//Desnecessario agora o cliente ja inicia conectado
 			case "1":
 				System.out.println("Usuario conectado.");
 				// Conectar
